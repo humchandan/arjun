@@ -4,7 +4,6 @@ import { inngest } from "./client";
 import { getSandbox, lastAssistantTextMessageContent } from "./utils";
 import { z } from "zod";
 import { PROMPT } from "@/prompts";
-import { title } from "process";
 
 export const helloWorld = inngest.createFunction(
   { id: "hello-world" },
