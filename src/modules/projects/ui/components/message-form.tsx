@@ -67,7 +67,7 @@ interface Props {
             <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
-            "relative border p-4 pt-1 rounded-xl bg-sidebar dark:bg-sidebar transition-all",
+         "relative border p-4 pt-1 rounded-xl bg-sidebar dark:bg-sidebar transition-all",
         isFocussed && "shadow-xs",
         showUsage && "rounded-t-none",
         )}
@@ -113,7 +113,7 @@ interface Props {
         {isPending ? (
             <Loader2Icon className="size-4 animate-spin" />
         ) : (
-                    <ArrowUpIcon/>
+             <ArrowUpIcon/>
           )}
                 </Button>
             </div>

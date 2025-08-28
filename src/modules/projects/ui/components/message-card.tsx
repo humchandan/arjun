@@ -85,7 +85,7 @@ const AssistantMessage = ({
             />
             <span className="text-sm font-medium">Arjun</span>
             <span className="text-xs text-muted-foreground opacity-0 transition-opacity
-            grout-hover:Opacity-100">
+            group-hover:Opacity-100">
                 {format(createdAt, "MMM dd, yyyy 'at' h:mm a")}            
         </span>
      </div>

@@ -14,13 +14,13 @@ interface Props {
     setActiveFragment: (Fragment: Fragment |null) => void;
 };
 
-export const MessagesContainer = ({ 
+export const MessagesContainer =  ({ 
     projectId,
     activeFragment,
     setActiveFragment,
 }: Props) => {
-    const bottomRef = useRef<HTMLDivElement>(null);
     const trpc = useTRPC();
+    const bottomRef = useRef<HTMLDivElement>(null);
 
      const { data: messages} = useSuspenseQuery(trpc.messages.getMany.queryOptions({
         projectId: projectId,
@@ -30,7 +30,7 @@ export const MessagesContainer = ({
 
     }));
 
-    /* TODO this is causing problems
+    /* TODO this is causing problems 
     useEffect(() => {
       const lastAssistantMessageWithFragment = messages.findLast(
         (message) => message.role === "ASSISTANT" && !!message.fragment,
@@ -44,7 +44,8 @@ export const MessagesContainer = ({
         bottomRef.current?.scrollIntoView();
     }, [messages.length]);
 
-    const lastMessage =
+    const lastMessage = messages[messages.length - 1];
+    const isLastMessageUser = lastMessage?.role === "USER";
     return(
         <div className="flex flex-col flex-1 min-h-0">
             <div className="overflow-y-auto flex-1 min-h-0">
