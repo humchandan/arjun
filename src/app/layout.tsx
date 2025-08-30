@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import {Toaster} from "@/components/ui/sonner"
 import { TRPCReactProvider } from "@/trpc/client";
-
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,6 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <ClerkProvider>
     <TRPCReactProvider>
     <html lang="en" suppressHydrationWarning>
       <body
@@ -37,7 +38,6 @@ export default function RootLayout({
         defaultTheme="system"
         enableSystem
         disableTransitionOnChange
-
         >
         <Toaster/>
         {children}
@@ -45,5 +45,6 @@ export default function RootLayout({
       </body>
     </html>
     </TRPCReactProvider>
+   </ClerkProvider>
   );
 }
