@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
 import { PROJECT_TEMPLATES } from "../../constants";
 import { useClerk } from "@clerk/nextjs";
-import { err } from "inngest/types";
+
 
 
  const formSchema = z.object ({
@@ -43,15 +43,20 @@ import { err } from "inngest/types";
                     queryclient.invalidateQueries(
                     trpc.projects.getMany.queryOptions(),
                 );
+                queryclient.invalidateQueries(
+                    trpc.usage.status.queryOptions(),
+                );
                 router.push(`/projects/${data.id}`);
-                //TODO: Invalidate usage status
+                
         },
         onError: (error) => {
             toast.error(error.message);
             if (error.data?.code === "UNAUTHORIZED") {
                 clerk.openSignIn();
             }
-            //TODO redirect to pricing page if specific error
+            if (error.data?.code === "TOO_MANY_REQUESTS") {
+                router.push("/pricing");  
+            }
         },
     
  }));   

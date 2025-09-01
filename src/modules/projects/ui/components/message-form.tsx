@@ -1,3 +1,5 @@
+"use client";
+
 import { z } from "zod";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -5,12 +7,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextareaAutosize from "react-textarea-autosize";
 import { ArrowUpIcon, Loader2Icon } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {  useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {cn} from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 import { Form, FormField } from "@/components/ui/form";
+import { Usage } from "./usage";
+import { useRouter } from "next/navigation";
 
 
 
@@ -25,8 +29,11 @@ interface Props {
 })
 
  export const MessageForm = ({ projectId}: Props) => {
-     const trpc = useTRPC();
+    const trpc = useTRPC();
+    const router = useRouter();
      const queryclient =useQueryClient();
+    const {data: usage} =useQuery(trpc.usage.status.queryOptions());
+
      const form =useForm<z.infer<typeof formSchema>>({
      
          resolver: zodResolver(formSchema),
@@ -36,19 +43,24 @@ interface Props {
         });
         
         const createMessage = useMutation(trpc.messages.create.mutationOptions({
-            onSuccess: (data) => {
+            onSuccess: () => {
                 form.reset();
                 queryclient.invalidateQueries(
                     trpc.messages.getMany.queryOptions({projectId}),
                 );
-                //TODO: Invalidate usage status
+            queryclient.invalidateQueries(
+                trpc.usage.status.queryOptions(),
+           );
+
         },
         onError: (error) => {
-            //TODO redirect to pricing page if specific error
             toast.error(error.message);
-        },
-    
- }));   
+
+            if (error.data?.code === "TOO_MANY_REQUESTS") {
+                router.push("/pricing");
+                }    
+             },
+     }));   
 
 
         const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -60,10 +72,16 @@ interface Props {
         const [isFocussed, setIsFocused] = useState(false);
         const isPending = createMessage.isPending;
         const isButtonDisabled = isPending ||!form.formState.isValid;
-        const showUsage = false;
+        const showUsage = !!usage;
     
     return (
         <Form {...form}>
+            {showUsage &&(
+             <Usage
+             points={usage.remainingPoints}
+             msBeforeNext={usage.msBeforeNext}
+             />
+            )}
             <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn(
