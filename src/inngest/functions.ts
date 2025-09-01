@@ -7,7 +7,7 @@ import prisma from "@/lib/db";
 
 import { inngest } from "./client";
 import { getSandbox, lastAssistantTextMessageContent, parseAgentOutput } from "./utils";
-
+import { SANDBOX_TIMEOUT } from "./types";
 
 interface AgentState {
   summary: string;
@@ -20,12 +20,11 @@ export const codeAgentFunction = inngest.createFunction(
   async ({ event, step }) => {
     const sandboxId = await step.run("get-sandbox-id", async () => {
       const sandbox = await Sandbox.create("arjun");
+      await sandbox.setTimeout(SANDBOX_TIMEOUT)
       return sandbox.sandboxId;
     });
-
     const previousMessages = await step.run("get-previous-messages", async () => {
       const formattedMessages: Message [] = [];
- 
       const messages = await prisma.message.findMany({
         where:{
           projectId: event.data.projectId,
@@ -33,6 +32,7 @@ export const codeAgentFunction = inngest.createFunction(
         orderBy: {
           createdAt : "desc", //TODO change it to asc if the AI does not understand what is the latest message
         },
+        take: 5,
       });
 
         for (const message of messages) {
@@ -43,7 +43,7 @@ export const codeAgentFunction = inngest.createFunction(
            })
         }
 
-        return formattedMessages;
+        return formattedMessages.reverse();
     });
 
     const state = createState<AgentState>(
